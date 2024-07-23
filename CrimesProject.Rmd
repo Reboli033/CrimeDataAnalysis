@@ -1,0 +1,150 @@
+---
+title: "CrimesProject"
+author: "S18809"
+date: "11/21/2023"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+
+```
+```{r}
+library(skimr)
+```
+```{r}
+library(janitor)
+```
+```{r}
+library(lubridate)
+```
+
+
+a)
+```{r}
+col_type <- c("dccdcdfc")
+Crimes <- read_csv("../Data/crimes_in_LA_2022.csv",col_types = col_type)
+slice_head(Crimes,n = 10)
+```
+
+#b)
+```{r}
+skim(Crimes)
+```
+
+#c)
+```{r}
+Crimes <- clean_names(dat = Crimes,case = "lower_camel")
+glimpse(Crimes)
+```
+#D)
+```{r}
+Crimes <- Crimes %>%
+  mutate(dateOccurred = as.Date(mdy_hms(dateOcc),format = "MM/DD/YYYY"),
+          dateReported = as.Date(mdy_hms(dateRptd),,format = "MM/DD/YYYY"))
+```
+
+
+```{r}
+glimpse(Crimes)
+```
+#e)
+```{r}
+Crimes %>%
+  group_by(premisDesc)%>%
+  summarise(CountS = n())%>%
+  slice_max(CountS,n = 5)
+```
+#f)
+```{r}
+Crimes %>%
+  group_by(crmCdDesc) %>%
+  summarise(counts = n()) %>%
+  slice_max(counts,n = 1)
+```
+#g)
+```{r}
+Crimes <- Crimes %>%
+  mutate(dayOfWeek = weekdays(dateOccurred))
+```
+
+
+```{r}
+glimpse(Crimes)
+```
+
+```{r}
+Crimes %>%
+  group_by(dayOfWeek) %>%
+  summarise(noOfCrimesOcc = n()) %>%
+  arrange(desc(noOfCrimesOcc))
+
+```
+#i)
+```{r}
+head(Crimes)
+```
+
+```{r}
+StreetCrime <- Crimes %>%
+  filter(premisDesc == "STREET")
+```
+
+
+```{r}
+slice_head(StreetCrime)
+```
+```{r}
+StreetCrime <- StreetCrime %>%
+  mutate(CrimeOccTime = format(mdy_hms(dateOcc),format = "%I:%M:%S %p"))
+```
+
+```{r}
+glimpse(StreetCrime)
+```
+```{r}
+StreetCrime %>%
+  group_by(CrimeOccTime) %>%
+  summarise(NumberOfTime = n())%>%
+  slice_max(NumberOfTime,n = 1)
+```
+```{r}
+StreetCrime %>%
+  filter(CrimeOccTime == "12:00:00 AM") %>%
+  select(hourOcc,dayOfWeek) %>%
+  slice_head(n = 10)
+```
+j)
+```{r}
+skim(Crimes)
+```
+```{r}
+data2 <- Crimes %>%
+  filter(is.na(victSex))
+```
+
+
+```{r}
+Crimes <- Crimes %>%
+  drop_na()
+```
+
+```{r}
+skim(Crimes)
+```
+
+#j)
+
+```{r}
+Crimes %>%
+  filter(victAge != 0) %>%
+  ggplot(mapping = aes(x = victAge))+
+  geom_histogram(aes(fill = victSex),binwidth = 5)
+```
+
